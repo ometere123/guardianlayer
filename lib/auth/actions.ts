@@ -44,6 +44,10 @@ export async function signUp(formData: FormData) {
     });
   }
 
+  if (data.session) {
+    redirect("/onboarding");
+  }
+
   redirect("/verify-email");
 }
 
