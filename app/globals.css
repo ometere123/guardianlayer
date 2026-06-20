@@ -1,26 +1,159 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Core background palette */
+  --color-command-black: #070A12;
+  --color-panel-navy: #0D111C;
+  --color-raised-graphite: #121827;
+  --color-border-steel: #243044;
+
+  /* Text */
+  --color-text-primary: #F4F7FB;
+  --color-text-secondary: #9AA7B8;
+  --color-text-muted: #64748B;
+
+  /* Accent */
+  --color-signal-cyan: #38BDF8;
+  --color-consensus-violet: #8B5CF6;
+
+  /* Status */
+  --color-safe: #22C55E;
+  --color-elevated-risk: #EAB308;
+  --color-high-risk: #F97316;
+  --color-critical: #EF4444;
+  --color-paused: #DC2626;
+  --color-review: #A855F7;
+
+  /* Fonts */
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-ibm-plex-mono);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #070A12;
+  color: #F4F7FB;
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0D111C; }
+::-webkit-scrollbar-thumb { background: #243044; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #64748B; }
+
+/* Selection */
+::selection { background: rgba(56, 189, 248, 0.2); color: #F4F7FB; }
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 2px;
+}
+
+/* ─── Typography utilities ─── */
+.font-display { font-family: var(--font-space-grotesk), 'Space Grotesk', sans-serif; }
+.font-mono-gl { font-family: var(--font-ibm-plex-mono), 'IBM Plex Mono', monospace; }
+
+/* ─── Gradient text ─── */
+.gradient-cyan {
+  background: linear-gradient(135deg, #38BDF8, #7DD3FC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-violet {
+  background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Glow ─── */
+.glow-cyan    { box-shadow: 0 0 32px rgba(56, 189, 248, 0.12); }
+.glow-violet  { box-shadow: 0 0 32px rgba(139, 92, 246, 0.12); }
+.glow-critical{ box-shadow: 0 0 32px rgba(239, 68, 68, 0.15); }
+
+/* ─── Threat rail (left border accent) ─── */
+.rail-critical { border-left: 3px solid #EF4444 !important; }
+.rail-high     { border-left: 3px solid #F97316 !important; }
+.rail-elevated { border-left: 3px solid #EAB308 !important; }
+.rail-safe     { border-left: 3px solid #22C55E !important; }
+.rail-cyan     { border-left: 3px solid #38BDF8 !important; }
+.rail-violet   { border-left: 3px solid #8B5CF6 !important; }
+
+/* ─── Hash plate (mono address/hash display) ─── */
+.hash-plate {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 12px;
+  color: #9AA7B8;
+  background: #070A12;
+  border: 1px solid #243044;
+  border-radius: 6px;
+  padding: 3px 10px;
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+
+/* ─── Command panel base ─── */
+.command-panel {
+  background: #0D111C;
+  border: 1px solid #243044;
+  border-radius: 16px;
+}
+
+/* ─── Scanline overlay for hero ─── */
+.scanline {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.025) 2px,
+    rgba(0,0,0,0.025) 4px
+  );
+}
+
+/* ─── Animations ─── */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(56,189,248,0.35); }
+  70%  { box-shadow: 0 0 0 10px rgba(56,189,248,0); }
+  100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+}
+@keyframes blink-dot {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scan-h {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-pulse-ring  { animation: pulse-ring 2.5s ease-out infinite; }
+.animate-blink       { animation: blink-dot 1.5s ease-in-out infinite; }
+.animate-fade-in-up  { animation: fade-in-up 0.6s ease-out forwards; }
