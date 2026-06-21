@@ -7,12 +7,15 @@ import Link from "next/link";
 export const metadata = { title: "Submit Signal — Guardian Layer" };
 
 const SIGNAL_TYPES = [
-  "exploit_attempt", "flash_loan_attack", "oracle_manipulation", "reentrancy",
-  "price_manipulation", "governance_attack", "rugpull", "suspicious_transaction",
-  "contract_anomaly", "large_withdrawal", "other",
+  "large_outflow", "abnormal_withdrawal", "admin_wallet_change", "ownership_transfer",
+  "pause_state_change", "contract_upgrade", "suspicious_approval", "bridge_drain_pattern",
+  "security_report", "public_exploit_claim", "github_advisory",
+  "oracle_manipulation", "flash_loan_attack", "reentrancy", "governance_attack",
+  "price_manipulation", "rugpull", "exploit_attempt",
+  "api_submitted", "manual_report", "integration_compromise", "unknown", "other",
 ];
 
-const SEVERITY_LEVELS = ["low", "medium", "high", "critical"];
+const SEVERITY_LEVELS = ["low", "elevated", "medium", "high", "critical"];
 
 export default async function NewSignalPage() {
   const supabase = await createClient();

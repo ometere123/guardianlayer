@@ -123,6 +123,44 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Auto-pause: if verdict is critical and policy allows, trigger pause
+  let autoPauseTriggered = false;
+  if (verdict.verdict_threat_level === "critical" || verdict.verdict_recommended_action === "emergency_pause") {
+    const { data: policyRow } = await service
+      .from("pause_policies")
+      .select("emergency_mode, hard_pause_enabled, human_approval_required_for_hard_pause")
+      .eq("protocol_id", incident.protocol_id as string)
+      .maybeSingle();
+    const pol = policyRow as Record<string, unknown> | null;
+
+    const canAutoPause = pol && (
+      (pol.emergency_mode === "hard_pause") ||
+      (pol.emergency_mode === "soft_pause" && !pol.human_approval_required_for_hard_pause)
+    );
+
+    if (canAutoPause) {
+      await service
+        .from("protocols")
+        .update({ current_status: "paused", updated_at: now })
+        .eq("id", incident.protocol_id as string);
+
+      await writeAuditLog(service, {
+        organisation_id: membership.organisation_id,
+        actor_user_id: user.id,
+        action: "protocol.auto_paused",
+        target_type: "protocol",
+        target_id: incident.protocol_id as string,
+        metadata_json: {
+          trigger: "genlayer_critical_verdict",
+          incident_id,
+          threat_level: verdict.verdict_threat_level,
+        },
+      });
+
+      autoPauseTriggered = true;
+    }
+  }
+
   await writeAuditLog(service, {
     organisation_id: membership.organisation_id,
     actor_user_id: user.id,
@@ -151,6 +189,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     synced: true,
+    auto_pause_triggered: autoPauseTriggered,
     verdict: {
       threat_level: verdict.verdict_threat_level,
       recommended_action: verdict.verdict_recommended_action,

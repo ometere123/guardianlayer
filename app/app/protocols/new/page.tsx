@@ -10,6 +10,7 @@ export const metadata = { title: "Register Protocol — Guardian Layer" };
 const CATEGORIES = ["defi", "bridge", "lending", "dex", "derivatives", "nft", "dao", "staking", "other"];
 const CHAINS = ["ethereum", "polygon", "arbitrum", "optimism", "base", "avalanche", "bsc", "solana", "other"];
 const NETWORKS = ["mainnet", "testnet", "devnet"];
+const EMERGENCY_MODES = ["alert_only", "soft_pause", "hard_pause"];
 
 type Props = {
   searchParams: Promise<{ error?: string }>;
@@ -105,6 +106,23 @@ export default async function NewProtocolPage({ searchParams }: Props) {
               {NETWORKS.map(n => <option key={n} value={n}>{n}</option>)}
             </select>
           </div>
+        </div>
+
+        {/* Emergency Mode */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold text-[#9AA7B8] uppercase tracking-wider">Emergency Mode</label>
+          <select
+            name="emergency_mode"
+            defaultValue="alert_only"
+            className="px-3 py-2.5 rounded-[8px] bg-[#070A12] border border-[#243044] text-sm text-[#F4F7FB] focus:outline-none focus:border-[#38BDF8]/50 transition-colors appearance-none"
+          >
+            {EMERGENCY_MODES.map(m => (
+              <option key={m} value={m}>
+                {m === "alert_only" ? "Alert Only — notify but do not pause" : m === "soft_pause" ? "Soft Pause — auto soft-pause, hard pause needs approval" : "Hard Pause — auto-pause on critical threats"}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-[#64748B]">Controls how GenLayer verdicts trigger pause actions on your contracts.</p>
         </div>
 
         {/* Website + GitHub */}

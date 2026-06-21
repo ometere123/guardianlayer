@@ -138,9 +138,9 @@ export default async function ProtocolDetailPage({ params, searchParams }: Props
               { label: "GenLayer Decisions", value: decisions.length },
               { label: "Protocol Key", value: protocol.protocol_key as string, mono: true },
             ].map(({ label, value, accent, mono }) => (
-              <div key={label} className="command-panel p-4">
+              <div key={label} className="command-panel p-4 min-w-0 overflow-hidden">
                 <p className="text-[10px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">{label}</p>
-                <p className={`text-lg font-bold ${accent && Number(value) > 0 ? "text-[#F97316]" : "text-[#F4F7FB]"} ${mono ? "font-mono-gl text-xs mt-1" : ""}`}>
+                <p className={`font-bold truncate ${accent && Number(value) > 0 ? "text-[#F97316]" : "text-[#F4F7FB]"} ${mono ? "font-mono-gl text-xs mt-1" : "text-lg"}`} title={String(value)}>
                   {value}
                 </p>
               </div>

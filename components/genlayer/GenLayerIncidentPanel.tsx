@@ -164,6 +164,9 @@ export function GenLayerIncidentPanel({
         {isSynced && <span className="text-[10px] text-[#22C55E] font-medium">Synced</span>}
       </div>
 
+      {/* Verdict summary after sync */}
+      {isSynced && !!syncResult?.["verdict"] && <VerdictCard verdict={syncResult["verdict"] as Record<string, unknown>} autoPaused={syncResult["auto_pause_triggered"] === true} />}
+
       {error && (
         <div className="px-3 py-2 rounded-[8px] bg-[#2a0a0a] border border-[#EF4444]/20 text-xs text-[#EF4444]">
           {error}
@@ -173,6 +176,32 @@ export function GenLayerIncidentPanel({
       <p className="text-[10px] text-[#64748B] border-t border-[#243044] pt-3">
         GenLayer is the authoritative source of truth. Supabase mirrors the verdict but does not override it.
       </p>
+    </div>
+  );
+}
+
+function VerdictCard({ verdict, autoPaused }: { verdict: Record<string, unknown>; autoPaused: boolean }) {
+  const threat = String(verdict.threat_level ?? "none");
+  const classification = threat === "critical" ? "CRITICAL" : threat === "high" ? "SUSPICIOUS" : "SAFE";
+  const colors: Record<string, string> = {
+    CRITICAL: "bg-[#450a0a] border-[#EF4444]/30 text-[#EF4444]",
+    SUSPICIOUS: "bg-[#451a03] border-[#F97316]/30 text-[#F97316]",
+    SAFE: "bg-[#052e16] border-[#22C55E]/30 text-[#22C55E]",
+  };
+  return (
+    <div className={`p-4 rounded-[10px] border ${colors[classification]} flex flex-col gap-2`}>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-bold">{classification}</span>
+        <span className="text-[10px] opacity-70">threat: {threat}</span>
+      </div>
+      {!!verdict.reasoning && <p className="text-xs opacity-80">{String(verdict.reasoning)}</p>}
+      <div className="flex gap-3 text-[10px] opacity-60">
+        {!!verdict.recommended_action && <span>Action: {String(verdict.recommended_action)}</span>}
+        {!!verdict.confidence_label && <span>Confidence: {String(verdict.confidence_label)}</span>}
+      </div>
+      {autoPaused && (
+        <p className="text-xs font-semibold text-[#EF4444] mt-1">Auto-pause triggered on protocol</p>
+      )}
     </div>
   );
 }

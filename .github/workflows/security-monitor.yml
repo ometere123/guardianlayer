@@ -1,0 +1,113 @@
+name: Security Feed Monitor
+
+on:
+  schedule:
+    # Every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  scan-feeds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan security feeds and submit signals
+        env:
+          GUARDIAN_API_URL: ${{ secrets.GUARDIAN_API_URL }}
+          GUARDIAN_API_KEY: ${{ secrets.GUARDIAN_API_KEY }}
+          GUARDIAN_PROTOCOL_ID: ${{ secrets.GUARDIAN_PROTOCOL_ID }}
+        run: |
+          set -euo pipefail
+
+          API_URL="${GUARDIAN_API_URL:-https://guardianlayer.vercel.app}"
+          if [ -z "${GUARDIAN_API_KEY:-}" ]; then
+            echo "GUARDIAN_API_KEY not set, skipping"
+            exit 0
+          fi
+
+          echo "=== Scanning DeFi security feeds ==="
+
+          # 1. Check DeFiLlama hacks API for recent exploits
+          echo "Checking DeFiLlama hacks..."
+          HACKS=$(curl -sf "https://api.llama.fi/hacks" || echo "[]")
+
+          # Get hacks from last 24 hours
+          CUTOFF=$(date -d '24 hours ago' +%s 2>/dev/null || date -v-24H +%s 2>/dev/null || echo 0)
+
+          echo "$HACKS" | jq -c --argjson cutoff "$CUTOFF" '
+            [.[] | select(.date >= $cutoff)] | .[:5]
+          ' | jq -c '.[]' | while read -r HACK; do
+            NAME=$(echo "$HACK" | jq -r '.name // "Unknown"')
+            AMOUNT=$(echo "$HACK" | jq -r '.amount // 0')
+            CHAIN=$(echo "$HACK" | jq -r '.chain // "unknown"')
+            TECHNIQUE=$(echo "$HACK" | jq -r '.technique // "unknown"')
+            LINK=$(echo "$HACK" | jq -r '.link // ""')
+
+            echo "  Found: $NAME - \$${AMOUNT}M on $CHAIN via $TECHNIQUE"
+
+            SIGNAL_TYPE="public_exploit_claim"
+            SEVERITY="critical"
+            if (( $(echo "$AMOUNT < 1" | bc -l 2>/dev/null || echo 0) )); then
+              SEVERITY="elevated"
+            fi
+
+            PAYLOAD=$(jq -n \
+              --arg protocol_id "${GUARDIAN_PROTOCOL_ID}" \
+              --arg signal_type "$SIGNAL_TYPE" \
+              --arg severity_hint "$SEVERITY" \
+              --arg title "DeFiLlama: $NAME exploit - \$${AMOUNT}M ($CHAIN)" \
+              --arg summary "DeFiLlama reports a \$${AMOUNT}M exploit on $NAME ($CHAIN) via $TECHNIQUE. Source: $LINK" \
+              --arg source_type "defillama_hacks" \
+              --argjson evidence_urls "$(echo "[\"$LINK\"]" | jq -c '.')" \
+              '{protocol_id: $protocol_id, signal_type: $signal_type, severity_hint: $severity_hint, title: $title, summary: $summary, source_type: $source_type, evidence_urls: $evidence_urls}'
+            )
+
+            RESP=$(curl -sf -X POST "${API_URL}/api/v1/signals" \
+              -H "Authorization: Bearer ${GUARDIAN_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" || echo '{"error":"request failed"}')
+            echo "  -> $RESP"
+          done
+
+          # 2. Check GitHub Advisory Database for smart contract related advisories
+          echo "Checking GitHub advisories..."
+          ADVISORIES=$(curl -sf "https://api.github.com/advisories?type=reviewed&ecosystem=npm&per_page=5&sort=updated&direction=desc" \
+            -H "Accept: application/vnd.github+json" || echo "[]")
+
+          echo "$ADVISORIES" | jq -c '.[:3] | .[]' | while read -r ADV; do
+            SUMMARY=$(echo "$ADV" | jq -r '.summary // "No summary"')
+            SEVERITY_RAW=$(echo "$ADV" | jq -r '.severity // "low"')
+            URL=$(echo "$ADV" | jq -r '.html_url // ""')
+            CVE=$(echo "$ADV" | jq -r '.cve_id // "N/A"')
+
+            # Map GitHub severity to our levels
+            case "$SEVERITY_RAW" in
+              critical) SEVERITY="critical" ;;
+              high) SEVERITY="high" ;;
+              moderate) SEVERITY="elevated" ;;
+              *) SEVERITY="low" ;;
+            esac
+
+            # Only submit medium+ severity
+            if [ "$SEVERITY" = "low" ]; then continue; fi
+
+            echo "  Found advisory: $CVE - $SEVERITY"
+
+            PAYLOAD=$(jq -n \
+              --arg protocol_id "${GUARDIAN_PROTOCOL_ID}" \
+              --arg signal_type "github_advisory" \
+              --arg severity_hint "$SEVERITY" \
+              --arg title "GitHub Advisory $CVE: $SUMMARY" \
+              --arg summary "GitHub Security Advisory ($SEVERITY_RAW): $SUMMARY. CVE: $CVE. Details: $URL" \
+              --arg source_type "github_advisory" \
+              --argjson evidence_urls "$(echo "[\"$URL\"]" | jq -c '.')" \
+              '{protocol_id: $protocol_id, signal_type: $signal_type, severity_hint: $severity_hint, title: $title, summary: $summary, source_type: $source_type, evidence_urls: $evidence_urls}'
+            )
+
+            RESP=$(curl -sf -X POST "${API_URL}/api/v1/signals" \
+              -H "Authorization: Bearer ${GUARDIAN_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" || echo '{"error":"request failed"}')
+            echo "  -> $RESP"
+          done
+
+          echo "=== Scan complete ==="

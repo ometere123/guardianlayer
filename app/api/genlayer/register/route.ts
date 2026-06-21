@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { glRegisterProtocol, getExplorerTxUrl } from "@/lib/genlayer/client";
 import { writeAuditLog } from "@/lib/audit/write";
 import { getUserPrivateKey } from "@/lib/wallet/get-user-key";
+import { createAccount } from "genlayer-js";
 import crypto from "crypto";
 
 // POST /api/genlayer/register
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       policy_hash: policyHash,
       public_protocol_summary: publicSummary,
       emergency_mode: (policy?.emergency_mode as string | undefined) ?? (protocol.emergency_mode as string),
-      owner_wallet: (protocol.owner_wallet_address as string | null) ?? "",
+      owner_wallet: (protocol.owner_wallet_address as string | null) || createAccount(privateKey).address,
     });
     txHash = result.hash;
   } catch (err) {

@@ -28,6 +28,7 @@ export async function createProtocol(formData: FormData) {
   const category = (formData.get("category") as string) || "defi";
   const chain = (formData.get("chain") as string) || "ethereum";
   const network = (formData.get("network") as string) || "mainnet";
+  const emergency_mode = (formData.get("emergency_mode") as string) || "alert_only";
   const website_url = (formData.get("website_url") as string)?.trim() || null;
   const github_url = (formData.get("github_url") as string)?.trim() || null;
 
@@ -49,7 +50,7 @@ export async function createProtocol(formData: FormData) {
       network,
       website_url,
       github_url,
-      emergency_mode: "alert_only",
+      emergency_mode,
       current_status: "monitoring",
       current_threat_level: "none",
       current_recommended_action: "observe",
@@ -67,7 +68,7 @@ export async function createProtocol(formData: FormData) {
   const { error: policyError } = await service.from("pause_policies").insert({
     organisation_id: membership.organisation_id,
     protocol_id: protocol.id,
-    emergency_mode: "alert_only",
+    emergency_mode,
     minimum_threat_for_soft_pause: "high",
     minimum_threat_for_hard_pause: "critical",
     requires_explorer_evidence: true,

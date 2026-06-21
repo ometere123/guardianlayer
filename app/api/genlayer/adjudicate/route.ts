@@ -75,19 +75,51 @@ export async function POST(request: NextRequest) {
     : { data: [] };
 
   const signalRows = (signals ?? []) as Record<string, unknown>[];
+  const contractRows = (contracts ?? []) as Record<string, unknown>[];
+
   const protocolSummary = protocol
-    ? `${protocol.name as string} (${protocol.category as string}, ${protocol.chain as string}/${protocol.network as string}). ${(protocol.description as string | null) ?? ""}`
+    ? [
+        `Protocol: ${protocol.name as string}`,
+        `Category: ${protocol.category as string}`,
+        `Chain: ${protocol.chain as string}/${protocol.network as string}`,
+        `Description: ${(protocol.description as string | null) ?? "N/A"}`,
+        `Emergency mode: ${(protocol.emergency_mode as string | null) ?? "alert_only"}`,
+      ].join(". ")
     : "";
-  const pausePolicySummary = JSON.stringify(policy ?? {});
-  const affectedContractsSummary = JSON.stringify(contracts ?? []);
+
+  const pausePolicySummary = policy
+    ? [
+        `Emergency mode: ${policy.emergency_mode as string}`,
+        `Soft pause threshold: ${policy.minimum_threat_for_soft_pause as string}`,
+        `Hard pause threshold: ${policy.minimum_threat_for_hard_pause as string}`,
+        `Hard pause enabled: ${policy.hard_pause_enabled ? "yes" : "no"}`,
+        `Human approval for hard pause: ${policy.human_approval_required_for_hard_pause ? "yes" : "no"}`,
+        `Requires explorer evidence: ${policy.requires_explorer_evidence ? "yes" : "no"}`,
+        `Requires multiple sources for hard pause: ${policy.requires_multiple_sources_for_hard_pause ? "yes" : "no"}`,
+      ].join(". ")
+    : "No pause policy configured.";
+
+  const affectedContractsSummary = contractRows.length > 0
+    ? contractRows.map(c =>
+        `${c.name as string} (${c.address as string}, role=${c.role as string}, pause_capable=${c.is_pause_capable ? "yes" : "no"}${c.pause_function_name ? ", pause_fn=" + (c.pause_function_name as string) : ""})`
+      ).join("; ")
+    : "No monitored contracts configured.";
+
   const evidenceUrlsJson = JSON.stringify(flattenStringArrays(signalRows, "evidence_urls"));
   const txHashesJson = JSON.stringify(flattenStringArrays(signalRows, "tx_hashes"));
-  const apiSignalSummary = signalRows.map(signal => ({
-    signal_type: signal.signal_type,
-    severity_hint: signal.severity_hint,
-    title: signal.title,
-    summary: signal.summary,
-  }));
+  const affectedWallets = flattenStringArrays(signalRows, "affected_wallets");
+
+  const apiSignalSummary = signalRows.map((signal, i) => [
+    `Signal ${i + 1}: [${signal.signal_type as string}] severity=${signal.severity_hint as string}`,
+    `Title: ${signal.title as string}`,
+    `Summary: ${signal.summary as string}`,
+    ...(Array.isArray(signal.evidence_urls) && (signal.evidence_urls as string[]).length > 0
+      ? [`Evidence URLs: ${(signal.evidence_urls as string[]).join(", ")}`] : []),
+    ...(Array.isArray(signal.tx_hashes) && (signal.tx_hashes as string[]).length > 0
+      ? [`TX hashes: ${(signal.tx_hashes as string[]).join(", ")}`] : []),
+    ...(Array.isArray(signal.affected_contracts) && (signal.affected_contracts as string[]).length > 0
+      ? [`Affected contracts: ${(signal.affected_contracts as string[]).join(", ")}`] : []),
+  ].join("\n"));
 
   let privateKey: `0x${string}`;
   try {
@@ -104,12 +136,25 @@ export async function POST(request: NextRequest) {
       protocol_summary: protocolSummary,
       pause_policy_summary: pausePolicySummary,
       affected_contracts_summary: affectedContractsSummary,
-      known_wallet_context: "[]",
+      known_wallet_context: affectedWallets.length > 0 ? affectedWallets.join(", ") : "None identified",
       evidence_urls_json: evidenceUrlsJson,
       tx_hashes_json: txHashesJson,
       public_reports_json: "[]",
-      api_signal_summary: JSON.stringify(apiSignalSummary),
-      manual_triage_summary: `${incident.title as string}: ${incident.summary as string}`,
+      api_signal_summary: apiSignalSummary.join("\n---\n"),
+      manual_triage_summary: [
+        `INCIDENT: ${incident.title as string}`,
+        `Severity hint: ${incident.threat_level as string}`,
+        `Source count: ${incident.source_count as number} signal(s)`,
+        `Summary: ${incident.summary as string}`,
+        ``,
+        `PROTOCOL CONTEXT: ${protocolSummary}`,
+        ``,
+        `PAUSE POLICY: ${pausePolicySummary}`,
+        ``,
+        `MONITORED CONTRACTS: ${affectedContractsSummary}`,
+        ``,
+        `QUESTION: Based on the evidence above, is this an active exploit, a suspicious pattern requiring review, or a false alarm? Classify the threat level and recommend an action.`,
+      ].join("\n"),
     });
     adjHash = result.hash;
     adjudicated = result.adjudicated;
