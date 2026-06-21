@@ -342,8 +342,8 @@ if (!guard.allowed) {
             Powered by GenLayer Studionet · Chain ID 61999
           </p>
           <div className="flex gap-6">
-            {["Security", "API Docs", "Privacy"].map((l) => (
-              <a key={l} href="#" className="text-xs text-[#64748B] hover:text-[#9AA7B8] transition-colors">{l}</a>
+            {[["Security", "/security"], ["API Docs", "/docs/api"], ["Privacy", "/privacy"]].map(([label, href]) => (
+              <Link key={href} href={href} className="text-xs text-[#64748B] hover:text-[#9AA7B8] transition-colors">{label}</Link>
             ))}
           </div>
         </div>
