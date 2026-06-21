@@ -41,7 +41,7 @@ export function WebhookManager({ endpoints: initialEndpoints, deliveries, canMan
     try {
       const res = await fetch("/api/webhooks/send-test", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       const json = await res.json() as { ok?: boolean; message?: string; error?: string };
-      setTestResult(json.ok ? "✓ Test event fired — check delivery log below" : (json.error ?? "Failed"));
+      setTestResult(json.ok ? "✓ Test event fired - check delivery log below" : (json.error ?? "Failed"));
     } catch (err) {
       setTestResult(String(err));
     } finally {
@@ -275,7 +275,7 @@ export function WebhookManager({ endpoints: initialEndpoints, deliveries, canMan
                         ? <CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" />
                         : <XCircle className="w-3.5 h-3.5 text-[#EF4444]" />}
                     </td>
-                    <td className="px-4 py-3 text-[#64748B]">{d.response_code ?? "—"}</td>
+                    <td className="px-4 py-3 text-[#64748B]">{d.response_code ?? "-"}</td>
                     <td className="px-4 py-3 text-[#64748B]">{formatTimeAgo(d.delivered_at ?? d.created_at)}</td>
                   </tr>
                 ))}

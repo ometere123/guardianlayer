@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { writeAuditLog } from "@/lib/audit/write";
 
-// PATCH /api/team/members/:id — update a member's role
+// PATCH /api/team/members/:id - update a member's role
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -63,7 +63,7 @@ export async function PATCH(
   return NextResponse.json({ ok: true });
 }
 
-// DELETE /api/team/members/:id — remove a member
+// DELETE /api/team/members/:id - remove a member
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

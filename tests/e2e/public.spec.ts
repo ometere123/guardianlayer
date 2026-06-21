@@ -37,7 +37,7 @@ test.describe("Route protection", () => {
   }
 });
 
-test.describe("API routes — unauthenticated rejections", () => {
+test.describe("API routes - unauthenticated rejections", () => {
   test("POST /api/v1/signals without auth returns 401", async ({ request }) => {
     const res = await request.post("/api/v1/signals", {
       data: { protocol_id: "x", signal_type: "exploit", title: "t", summary: "s" },
@@ -79,7 +79,7 @@ test.describe("API routes — unauthenticated rejections", () => {
   });
 });
 
-test.describe("Injection guard — API", () => {
+test.describe("Injection guard - API", () => {
   // These require a valid API key with signals:write scope
   const VERDICTS = [
     "verdict", "hard_pause", "recommended_action", "threat_level",

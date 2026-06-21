@@ -24,7 +24,7 @@ describe("buildEvidencePacket", () => {
     expect(evidence_hash).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it("is deterministic — same input always produces same hash", () => {
+  it("is deterministic - same input always produces same hash", () => {
     const a = buildEvidencePacket(BASE_INPUT);
     const b = buildEvidencePacket(BASE_INPUT);
     expect(a.evidence_hash).toBe(b.evidence_hash);

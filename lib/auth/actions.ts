@@ -98,7 +98,7 @@ export async function forgotPassword(formData: FormData) {
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?next=/reset-password`,
   });
 
   if (error) {
@@ -151,7 +151,7 @@ export async function createOrganisation(formData: FormData) {
     .maybeSingle();
 
   if (existing) {
-    // Already has org — update profile and go to wallet setup
+    // Already has org - update profile and go to wallet setup
     await service
       .from("user_profiles")
       .update({ default_organisation_id: existing.organisation_id })

@@ -20,7 +20,7 @@ export async function createClient() {
               cookieStore.set(name, value, options);
             });
           } catch {
-            // Server component — cookie mutation handled by middleware
+            // Server component - cookie mutation handled by middleware
           }
         },
       },

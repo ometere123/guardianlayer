@@ -4,7 +4,7 @@ import { submitSignal } from "@/lib/signals/actions";
 import { Radio, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "Submit Signal — Guardian Layer" };
+export const metadata = { title: "Submit Signal - Guardian Layer" };
 
 const SIGNAL_TYPES = [
   "large_outflow", "abnormal_withdrawal", "admin_wallet_change", "ownership_transfer",
@@ -156,7 +156,7 @@ export default async function NewSignalPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-[#64748B]">Evidence URLs (one per line — block explorers, reports, etc.)</label>
+              <label className="text-xs text-[#64748B]">Evidence URLs (one per line - block explorers, reports, etc.)</label>
               <textarea
                 name="evidence_urls"
                 rows={2}

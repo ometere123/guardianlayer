@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
   const evidenceHash = (incident.evidence_hash as string | null) ?? "";
   if (!evidenceHash) {
-    return NextResponse.json({ error: "No evidence packet found — escalate signal first" }, { status: 400 });
+    return NextResponse.json({ error: "No evidence packet found - escalate signal first" }, { status: 400 });
   }
 
   const { data: rawProtocol } = await service

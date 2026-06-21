@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "This user is already a member" }, { status: 409 });
     }
 
-    // User exists — add directly
+    // User exists - add directly
     await service.from("organisation_members").insert({
       organisation_id: membership.organisation_id,
       user_id: existingUser.id,
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, method: "added_directly", email, role });
   }
 
-  // User doesn't exist — send Supabase invite email
+  // User doesn't exist - send Supabase invite email
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${appUrl}/api/auth/callback?next=/onboarding`,

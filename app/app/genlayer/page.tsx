@@ -4,7 +4,7 @@ import { Cpu, ExternalLink, Shield, CheckCircle, Clock, AlertTriangle, Activity 
 import Link from "next/link";
 import { formatTimeAgo, truncateHash } from "@/lib/utils";
 
-export const metadata = { title: "Consensus Chamber — Guardian Layer" };
+export const metadata = { title: "Consensus Chamber - Guardian Layer" };
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_GUARDIAN_LAYER_CONTRACT_ADDRESS ?? "";
 const EXPLORER_BASE = process.env.NEXT_PUBLIC_GENLAYER_EXPLORER_URL ?? "https://explorer-studio.genlayer.com";
@@ -209,7 +209,7 @@ export default async function ConsensusChamberPage() {
                   </div>
                 </div>
 
-                {/* Verdict grid — only when finalized */}
+                {/* Verdict grid - only when finalized */}
                 {d.consensus_status === "finalized" && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs border-t border-[#243044] pt-4">
                     {[
@@ -221,7 +221,7 @@ export default async function ConsensusChamberPage() {
                       <div key={label}>
                         <p className="text-[#64748B] mb-0.5">{label}</p>
                         <p className={`font-semibold capitalize ${THREAT_COLORS[value ?? "none"] ?? "text-[#F4F7FB]"}`}>
-                          {(value ?? "—").replace(/_/g, " ")}
+                          {(value ?? "-").replace(/_/g, " ")}
                         </p>
                       </div>
                     ))}
@@ -265,7 +265,7 @@ export default async function ConsensusChamberPage() {
                 {d.consensus_status === "pending" && (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#1a1500] border border-[#EAB308]/20 text-xs text-[#EAB308]">
                     <Clock className="w-3.5 h-3.5" />
-                    Awaiting adjudication — go to the{" "}
+                    Awaiting adjudication - go to the{" "}
                     <Link href={`/app/incidents/${incident?.id}`} className="underline">incident page</Link>
                     {" "}to request AI consensus.
                   </div>
@@ -275,7 +275,7 @@ export default async function ConsensusChamberPage() {
                 {d.consensus_status === "adjudicated" && (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#100820] border border-[#8B5CF6]/20 text-xs text-[#8B5CF6]">
                     <AlertTriangle className="w-3.5 h-3.5" />
-                    Adjudicated but not yet synced — go to the{" "}
+                    Adjudicated but not yet synced - go to the{" "}
                     <Link href={`/app/incidents/${incident?.id}`} className="underline">incident page</Link>
                     {" "}and click Sync Decision.
                   </div>

@@ -5,7 +5,7 @@ import { AuthAlert } from "@/components/auth/AuthAlert";
 import { Shield } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "Register Protocol — Guardian Layer" };
+export const metadata = { title: "Register Protocol - Guardian Layer" };
 
 const CATEGORIES = ["defi", "bridge", "lending", "dex", "derivatives", "nft", "dao", "staking", "other"];
 const CHAINS = ["ethereum", "polygon", "arbitrum", "optimism", "base", "avalanche", "bsc", "solana", "other"];
@@ -118,7 +118,7 @@ export default async function NewProtocolPage({ searchParams }: Props) {
           >
             {EMERGENCY_MODES.map(m => (
               <option key={m} value={m}>
-                {m === "alert_only" ? "Alert Only — notify but do not pause" : m === "soft_pause" ? "Soft Pause — auto soft-pause, hard pause needs approval" : "Hard Pause — auto-pause on critical threats"}
+                {m === "alert_only" ? "Alert Only - notify but do not pause" : m === "soft_pause" ? "Soft Pause - auto soft-pause, hard pause needs approval" : "Hard Pause - auto-pause on critical threats"}
               </option>
             ))}
           </select>

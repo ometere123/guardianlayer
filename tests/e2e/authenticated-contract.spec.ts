@@ -1,13 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 const email = process.env.E2E_USER_EMAIL;
 const password = process.env.E2E_USER_PASSWORD;
+const orgName = process.env.E2E_ORG_NAME ?? "ShieldNet Security";
 const contractAddress =
   process.env.E2E_CONTRACT_ADDRESS ??
   process.env.NEXT_PUBLIC_GUARDIAN_LAYER_CONTRACT_ADDRESS ??
   "0xf53A06740c8C4d8973036bdbD9b71d05A81856F0";
 const runOnchain = process.env.E2E_ONCHAIN === "1";
-const platformKey = process.env.GUARDIAN_LAYER_PLATFORM_WALLET_PRIVATE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 test.describe("Authenticated team-visible contract flow", () => {
   test.skip(!email || !password, "E2E_USER_EMAIL and E2E_USER_PASSWORD are required");
@@ -27,7 +30,7 @@ test.describe("Authenticated team-visible contract flow", () => {
     await test.step("dashboard shows the real organisation and wallet", async () => {
       await page.goto("/app/overview");
       await expect(page.getByRole("heading", { name: "Guardian Command" })).toBeVisible();
-      await expect(page.getByText("Papito Labs")).toBeVisible();
+      await expect(page.getByText(orgName)).toBeVisible();
       await expect(page.getByText("Embedded wallet")).toBeVisible();
       await expect(page.getByRole("heading", { name: "Protocol Registry" })).toBeVisible();
     });
@@ -45,13 +48,13 @@ test.describe("Authenticated team-visible contract flow", () => {
       await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
       await expect(page.getByText("Organisation")).toBeVisible();
       await expect(page.getByText("Security Posture")).toBeVisible();
-      await expect(page.getByRole("main").getByText("Papito Labs", { exact: true })).toBeVisible();
+      await expect(page.getByRole("main").getByText(orgName, { exact: true })).toBeVisible();
       await expect(page.getByText("Owner Wallet")).toBeVisible();
     });
 
     await test.step("team page shows the logged-in owner", async () => {
       await gotoApp(page, "/app/team");
-      await expect(page.getByRole("main").getByText("Papito Labs")).toBeVisible();
+      await expect(page.getByRole("main").getByText(orgName)).toBeVisible();
       await expect(page.getByRole("main").getByText(email!)).toBeVisible();
       expect(await page.getByRole("main").getByText("Owner").count()).toBeGreaterThan(0);
     });
@@ -78,6 +81,7 @@ test.describe("Authenticated team-visible contract flow", () => {
     });
 
     const protocolUrl = page.url();
+    const protocolId = idFromUrl(protocolUrl);
 
     await test.step("add monitored contract details team can inspect", async () => {
       await gotoAbsolute(page, `${protocolUrl}?tab=contracts`);
@@ -109,25 +113,35 @@ test.describe("Authenticated team-visible contract flow", () => {
       await expect(protocolCard.getByText("other/testnet", { exact: true })).toBeVisible();
 
       await gotoApp(page, "/app/overview");
-      await expect(page.getByText(protocolName)).toBeVisible();
+      await expect(page.getByRole("link", { name: protocolName, exact: true })).toBeVisible();
     });
 
     if (!runOnchain) return;
 
     await test.step("preflight on-chain signing configuration", async () => {
-      expect(platformKey, "GUARDIAN_LAYER_PLATFORM_WALLET_PRIVATE_KEY must be set for E2E_ONCHAIN=1").toMatch(/^0x[0-9a-fA-F]+$/);
+      expect(supabaseUrl, "NEXT_PUBLIC_SUPABASE_URL must be set for E2E_ONCHAIN=1").toBeTruthy();
+      expect(serviceRoleKey, "SUPABASE_SERVICE_ROLE_KEY must be set for E2E_ONCHAIN=1").toBeTruthy();
     });
 
     await test.step("register protocol on GenLayer contract", async () => {
       await gotoAbsolute(page, protocolUrl);
       await page.getByRole("button", { name: "Register on GenLayer" }).click();
       await expect(page.getByText(/Registered|View tx|Registered! View tx/)).toBeVisible({ timeout: 4 * 60_000 });
+
+      const protocol = await getProtocol(protocolId);
+      expect(protocol.genlayer_protocol_registered).toBe(true);
+
+      const state = await getContractState(page, { protocolKey: protocol.protocol_key });
+      expect(state.protocol?.registered, "contract read should confirm protocol registration").toBe(true);
     });
+
+    let incidentId = "";
+    let incidentKey = "";
 
     await test.step("submit signal and escalate to incident", async () => {
       await gotoApp(page, "/app/signals/new");
       await page.locator('select[name="protocol_id"]').selectOption({ label: `${protocolName} (other/testnet)` });
-      await page.locator('select[name="signal_type"]').selectOption("contract_anomaly");
+      await page.locator('select[name="signal_type"]').selectOption("security_report");
       await page.locator('select[name="severity_hint"]').selectOption("critical");
       await page.locator('input[name="title"]').fill(signalTitle);
       await page.locator('textarea[name="summary"]').fill(
@@ -149,23 +163,41 @@ test.describe("Authenticated team-visible contract flow", () => {
       await page.locator('select[name="threat_level"]').selectOption("critical");
       await page.getByRole("button", { name: "Escalate to Incident" }).click();
       await page.waitForURL(/\/app\/incidents\/[0-9a-f-]+/, { timeout: 30_000 });
+      incidentId = idFromUrl(page.url());
       await expect(page.getByRole("heading", { name: incidentTitle })).toBeVisible();
       await expect(page.getByText("Evidence Packet")).toBeVisible();
       await expect(page.getByText("SHA-256 Hash")).toBeVisible();
     });
 
     await test.step("submit, adjudicate, and sync incident on GenLayer", async () => {
-      await page.getByRole("button", { name: "Submit" }).click();
+      const protocol = await getProtocol(protocolId);
+      const incident = await getIncident(incidentId);
+      incidentKey = incident.incident_key;
+
+      await page.getByRole("button", { name: "Submit", exact: true }).click();
       await expect(page.getByText("View tx")).toBeVisible({ timeout: 4 * 60_000 });
 
-      await page.getByRole("button", { name: "Adjudicate" }).click();
+      const submittedState = await getContractState(page, {
+        protocolKey: protocol.protocol_key,
+        incidentKey,
+      });
+      expect(submittedState.incident?.submitted, "contract read should confirm incident submission").toBe(true);
+
+      await page.getByRole("button", { name: "Adjudicate", exact: true }).click();
       await expect(page.getByText("View adjudication tx")).toBeVisible({ timeout: 8 * 60_000 });
 
-      await page.getByRole("button", { name: "Sync Decision" }).click();
+      await page.getByRole("button", { name: "Sync Decision", exact: true }).click();
       await page.waitForLoadState("domcontentloaded", { timeout: 60_000 });
       await expect(page.getByText("GenLayer Consensus Decision")).toBeVisible({ timeout: 60_000 });
       await expect(page.getByText("Source of truth:")).toBeVisible();
-      await expect(page.getByText("genlayer")).toBeVisible();
+      await expect(page.getByText("genlayer", { exact: true })).toBeVisible();
+
+      const adjudicatedState = await getContractState(page, {
+        protocolKey: protocol.protocol_key,
+        incidentKey,
+      });
+      expect(adjudicatedState.incident?.adjudicated, "contract read should confirm adjudication").toBe(true);
+      expect(adjudicatedState.incident?.verdict?.adjudicated, "contract read should expose adjudicated verdict").toBe(true);
     });
   });
 });
@@ -184,4 +216,65 @@ async function gotoApp(page: Page, path: string) {
 
 async function gotoAbsolute(page: Page, url: string) {
   await page.goto(url, { waitUntil: "load", timeout: 30_000 });
+}
+
+function idFromUrl(url: string) {
+  const pathname = new URL(url).pathname;
+  const id = pathname.split("/").filter(Boolean).at(-1);
+  expect(id, `Expected UUID in URL: ${url}`).toBeTruthy();
+  return id!;
+}
+
+function getSupabase() {
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Supabase service env is required for on-chain e2e state checks");
+  }
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+}
+
+async function getProtocol(protocolId: string) {
+  const { data, error } = await getSupabase()
+    .from("protocols")
+    .select("id, protocol_key, genlayer_protocol_registered")
+    .eq("id", protocolId)
+    .single();
+  if (error || !data) throw new Error(`Failed to load protocol ${protocolId}: ${error?.message ?? "not found"}`);
+  return data as { id: string; protocol_key: string; genlayer_protocol_registered: boolean };
+}
+
+async function getIncident(incidentId: string) {
+  const { data, error } = await getSupabase()
+    .from("incidents")
+    .select("id, incident_key")
+    .eq("id", incidentId)
+    .single();
+  if (error || !data) throw new Error(`Failed to load incident ${incidentId}: ${error?.message ?? "not found"}`);
+  return data as { id: string; incident_key: string };
+}
+
+type ContractState = {
+  protocol?: {
+    registered?: boolean | null;
+  };
+  incident?: {
+    submitted?: boolean | null;
+    adjudicated?: boolean | null;
+    verdict?: {
+      adjudicated?: boolean | null;
+    } | null;
+  };
+};
+
+async function getContractState(
+  page: Page,
+  params: { protocolKey: string; incidentKey?: string }
+) {
+  const search = new URLSearchParams({ protocol_key: params.protocolKey });
+  if (params.incidentKey) search.set("incident_key", params.incidentKey);
+
+  const response = await page.request.get(`/api/genlayer/contract-state?${search.toString()}`);
+  expect(response.status(), await response.text()).toBe(200);
+  return await response.json() as ContractState;
 }

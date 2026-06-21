@@ -10,7 +10,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 //   { should_pause: boolean, threat_level: string, recommended_action: string,
 //     source_of_truth: "genlayer" | "guardian", genlayer_decision_id?: string }
 //
-// IMPORTANT: should_pause is advisory — GenLayer is the authoritative source.
+// IMPORTANT: should_pause is advisory - GenLayer is the authoritative source.
 // Callers MUST display source_of_truth to operators and must not act without human review
 // unless emergency_mode === "automatic" AND source_of_truth === "genlayer".
 export async function GET(request: NextRequest) {
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     genlayer_decision_id: latestDecision?.id ?? null,
     warning:
       sourceOfTruth === "guardian"
-        ? "No finalized GenLayer consensus yet — this is a Guardian pre-consensus estimate only"
+        ? "No finalized GenLayer consensus yet - this is a Guardian pre-consensus estimate only"
         : undefined,
   });
 }

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { TeamManager } from "@/components/team/TeamManager";
 
-export const metadata = { title: "Team — Guardian Layer" };
+export const metadata = { title: "Team - Guardian Layer" };
 
 export default async function TeamPage() {
   const supabase = await createClient();
@@ -59,7 +59,7 @@ export default async function TeamPage() {
 
   const members = memberRows.map(m => ({
     ...m,
-    email: profileMap[m.user_id]?.email ?? "—",
+    email: profileMap[m.user_id]?.email ?? "-",
     display_name: profileMap[m.user_id]?.display_name ?? null,
     is_self: m.user_id === user.id,
   }));

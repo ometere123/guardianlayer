@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────
--- GUARDIAN LAYER — Initial Schema
+-- GUARDIAN LAYER - Initial Schema
 -- Migration 001
 -- ─────────────────────────────────────────────────────────
 
@@ -119,7 +119,7 @@ create table public.wallets (
 
 alter table public.wallets enable row level security;
 
--- Users can only see their own wallet record (address only — key never exposed via RLS)
+-- Users can only see their own wallet record (address only - key never exposed via RLS)
 create policy "users can read own wallet address"
   on public.wallets for select
   using (auth.uid() = user_id);

@@ -500,14 +500,14 @@ MANUAL TRIAGE SUMMARY:
 {self._clean_short(manual_triage_summary, 1400)}
 
 CANDIDATE ACTIONS:
-A. observe — evidence is weak, unsupported, irrelevant, stale, or unrelated.
-B. manual_review — evidence is credible but incomplete, ambiguous, inaccessible,
+A. observe - evidence is weak, unsupported, irrelevant, stale, or unrelated.
+B. manual_review - evidence is credible but incomplete, ambiguous, inaccessible,
    conflicting, or unsafe for automatic action.
-C. soft_pause — risky app/user/admin actions should be blocked while security
+C. soft_pause - risky app/user/admin actions should be blocked while security
    review continues, but direct hard pause is not yet justified.
-D. hard_pause — evidence strongly supports active/imminent exploit, loss,
+D. hard_pause - evidence strongly supports active/imminent exploit, loss,
    compromise, bridge/vault drain, or critical protocol risk.
-E. disable_integration — the strongest risk is a compromised API key, webhook,
+E. disable_integration - the strongest risk is a compromised API key, webhook,
    bot, automation, or external integration.
 
 Return STRICT JSON only. No markdown. No extra text.

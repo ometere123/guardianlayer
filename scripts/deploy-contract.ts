@@ -5,9 +5,9 @@
  *   npx tsx scripts/deploy-contract.ts
  *
  * Required env vars (in .env.local):
- *   GENLAYER_DEPLOYER_PRIVATE_KEY   — 0x… private key of the deployer wallet
- *   GUARDIAN_LAYER_PLATFORM_WALLET_PRIVATE_KEY — platform wallet (becomes contract owner)
- *   NEXT_PUBLIC_GENLAYER_RPC_URL    — https://studio.genlayer.com/api
+ *   GENLAYER_DEPLOYER_PRIVATE_KEY   - 0x… private key of the deployer wallet
+ *   GUARDIAN_LAYER_PLATFORM_WALLET_PRIVATE_KEY - platform wallet (becomes contract owner)
+ *   NEXT_PUBLIC_GENLAYER_RPC_URL    - https://studio.genlayer.com/api
  *
  * After deployment, copy the contract address into:
  *   NEXT_PUBLIC_GUARDIAN_LAYER_CONTRACT_ADDRESS=0x…
@@ -24,24 +24,15 @@ import { config } from "dotenv";
 config({ path: join(process.cwd(), ".env.local") });
 
 async function main() {
-  const deployerKey = process.env.GENLAYER_DEPLOYER_PRIVATE_KEY as `0x${string}`;
-  const platformWalletKey = process.env.GUARDIAN_LAYER_PLATFORM_WALLET_PRIVATE_KEY as `0x${string}`;
+  const deployerKey = (process.env.GENLAYER_DEPLOYER_PRIVATE_KEY ?? process.env.GUARDIAN_LAYER_DEPLOY_KEY) as `0x${string}`;
 
   if (!deployerKey) {
-    console.error("❌  GENLAYER_DEPLOYER_PRIVATE_KEY not set in .env.local");
-    process.exit(1);
-  }
-  if (!platformWalletKey) {
-    console.error("❌  GUARDIAN_LAYER_PLATFORM_WALLET_PRIVATE_KEY not set in .env.local");
+    console.error("❌  Set GENLAYER_DEPLOYER_PRIVATE_KEY in .env.local (the wallet that will own the contract)");
     process.exit(1);
   }
 
-  // Derive the platform wallet address (this becomes the contract owner)
-  const platformAccount = createAccount(platformWalletKey);
-  const platformAddress = platformAccount.address;
-
-  console.log("🔐  Deployer:         using provided key");
-  console.log(`🔐  Platform wallet:  ${platformAddress}`);
+  const deployerAccount = createAccount(deployerKey);
+  console.log(`🔐  Deployer/Owner:   ${deployerAccount.address}`);
   console.log(`🌐  Network:          GenLayer Studionet (chain 61999)`);
   console.log("");
 
@@ -52,8 +43,6 @@ async function main() {
   console.log(`📦  Code length:      ${contractCode.length} chars`);
   console.log("");
 
-  // Create client with deployer account
-  const deployerAccount = createAccount(deployerKey);
   const client = createClient({
     chain: studionet,
     account: deployerAccount,
@@ -65,8 +54,7 @@ async function main() {
   try {
     deployHash = (await client.deployContract({
       code: contractCode,
-      // Constructor arg: owner_address = platform wallet
-      args: [platformAddress],
+      args: [],
       leaderOnly: false,
     })) as TransactionHash;
   } catch (err) {
@@ -94,9 +82,10 @@ async function main() {
   // Extract deployed contract address from receipt
   // GenLayer returns it in the transaction data
   const contractAddress =
-    (receipt as Record<string, unknown>).contract_address as string
+    ((receipt as Record<string, unknown>).data as Record<string, unknown> | undefined)?.contract_address as string
+    ?? (receipt as Record<string, unknown>).contract_address as string
     ?? (receipt as Record<string, unknown>).to as string
-    ?? "unknown — check explorer";
+    ?? "unknown - check explorer";
 
   console.log("");
   console.log("✅  Deployment successful!");

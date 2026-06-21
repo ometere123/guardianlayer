@@ -7,7 +7,7 @@ import { GenLayerIncidentPanel } from "@/components/genlayer/GenLayerIncidentPan
 import Link from "next/link";
 import { formatTimeAgo, truncateHash } from "@/lib/utils";
 
-export const metadata = { title: "Incident — Guardian Layer" };
+export const metadata = { title: "Incident - Guardian Layer" };
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -163,10 +163,10 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
           </div>
           <div className="grid grid-cols-2 gap-4 text-xs">
             {[
-              { label: "Threat Level", value: decision.threat_level as string ?? "—" },
-              { label: "Recommended Action", value: decision.recommended_action as string ?? "—" },
-              { label: "Confidence", value: decision.confidence_label as string ?? "—" },
-              { label: "Support Level", value: decision.support_level as string ?? "—" },
+              { label: "Threat Level", value: decision.threat_level as string ?? "-" },
+              { label: "Recommended Action", value: decision.recommended_action as string ?? "-" },
+              { label: "Confidence", value: decision.confidence_label as string ?? "-" },
+              { label: "Support Level", value: decision.support_level as string ?? "-" },
             ].map(({ label, value }) => (
               <div key={label}>
                 <p className="text-[#64748B] mb-0.5">{label}</p>

@@ -105,18 +105,18 @@ export function GenLayerIncidentPanel({
         </span>
       </div>
 
-      {/* Fast Track — one-click full flow */}
+      {/* Fast Track - one-click full flow */}
       {!isSubmitted && !fastTracking && (
         <button
           onClick={handleFastTrack}
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[8px] bg-gradient-to-r from-[#8B5CF6] to-[#38BDF8] text-white text-sm font-bold hover:opacity-90 transition-opacity"
         >
-          <FastForward className="w-4 h-4" /> Fast Track — Submit, Adjudicate & Sync
+          <FastForward className="w-4 h-4" /> Fast Track - Submit, Adjudicate & Sync
         </button>
       )}
       {fastTracking && (
         <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[8px] bg-[#121827] border border-[#8B5CF6]/20 text-[#8B5CF6] text-sm font-medium">
-          <Loader2 className="w-4 h-4 animate-spin" /> Running full consensus flow — this takes 2–7 minutes…
+          <Loader2 className="w-4 h-4 animate-spin" /> Running full consensus flow - this takes 2-7 minutes…
         </div>
       )}
 
@@ -154,7 +154,7 @@ export function GenLayerIncidentPanel({
         </div>
         <div className="flex-1">
           <p className="text-xs font-medium text-[#F4F7FB]">Request AI adjudication</p>
-          <p className="text-[10px] text-[#64748B]">Waits for validator consensus (~2–7 min)</p>
+          <p className="text-[10px] text-[#64748B]">Waits for validator consensus (~2-7 min)</p>
           {adjExplorerUrl && (
             <a href={adjExplorerUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1 text-[10px] text-[#8B5CF6] mt-0.5">
@@ -162,10 +162,10 @@ export function GenLayerIncidentPanel({
             </a>
           )}
           {adjResult && !adjFinalized && (
-            <p className="text-[10px] text-[#EAB308] mt-0.5">Tx submitted — validators are writing consensus. Proceed to Sync to check.</p>
+            <p className="text-[10px] text-[#EAB308] mt-0.5">Tx submitted - validators are writing consensus. Proceed to Sync to check.</p>
           )}
           {decisionStatus === "adjudicating" && !adjResult && (
-            <p className="text-[10px] text-[#EAB308] mt-0.5">Awaiting validator consensus — click Sync when ready</p>
+            <p className="text-[10px] text-[#EAB308] mt-0.5">Awaiting validator consensus - click Sync when ready</p>
           )}
         </div>
         {isSubmitted && !isAdjudicated && (
@@ -188,9 +188,9 @@ export function GenLayerIncidentPanel({
         </div>
         <div className="flex-1">
           <p className="text-xs font-medium text-[#F4F7FB]">Sync decision to Guardian Layer</p>
-          <p className="text-[10px] text-[#64748B]">Mirrors GenLayer verdict — updates protocol threat level</p>
+          <p className="text-[10px] text-[#64748B]">Mirrors GenLayer verdict - updates protocol threat level</p>
           {syncNotReady && (
-            <p className="text-[10px] text-[#EAB308] mt-0.5">Validators still writing — wait ~1 min and retry</p>
+            <p className="text-[10px] text-[#EAB308] mt-0.5">Validators still writing - wait ~1 min and retry</p>
           )}
         </div>
         {isAdjudicated && !isSynced && (

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { writeAuditLog } from "@/lib/audit/write";
 
-// DELETE /api/keys/[id] — revoke a key
+// DELETE /api/keys/[id] - revoke a key
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

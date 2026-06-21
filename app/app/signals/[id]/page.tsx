@@ -5,7 +5,7 @@ import { Radio, ExternalLink, ArrowUpRight, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { formatTimeAgo, truncateHash } from "@/lib/utils";
 
-export const metadata = { title: "Signal — Guardian Layer" };
+export const metadata = { title: "Signal - Guardian Layer" };
 
 type Props = { params: Promise<{ id: string }> };
 

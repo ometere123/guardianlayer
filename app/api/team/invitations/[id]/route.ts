@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { writeAuditLog } from "@/lib/audit/write";
 
-// DELETE /api/team/invitations/:id — revoke a pending invitation
+// DELETE /api/team/invitations/:id - revoke a pending invitation
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

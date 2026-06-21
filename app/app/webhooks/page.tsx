@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { WebhookManager } from "@/components/webhooks/WebhookManager";
 
-export const metadata = { title: "Webhooks — Guardian Layer" };
+export const metadata = { title: "Webhooks - Guardian Layer" };
 
 export default async function WebhooksPage() {
   const supabase = await createClient();

@@ -102,7 +102,7 @@ export function ApiKeyVault({ initialKeys }: Props) {
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-[#22C55E]" />
             <p className="text-sm font-semibold text-[#22C55E]">
-              Copy your API key — it will not be shown again.
+              Copy your API key - it will not be shown again.
             </p>
           </div>
           <div className="flex items-center gap-2 p-3 rounded-[8px] bg-[#070A12] border border-[#243044]">
@@ -127,7 +127,7 @@ export function ApiKeyVault({ initialKeys }: Props) {
             onClick={() => setNewKeyPlaintext(null)}
             className="text-xs text-[#64748B] hover:text-[#9AA7B8] text-right transition-colors"
           >
-            I&apos;ve saved it — dismiss
+            I&apos;ve saved it - dismiss
           </button>
         </div>
       )}

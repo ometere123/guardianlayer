@@ -80,7 +80,7 @@ export function GuardianNav() {
 
   return (
     <>
-      {/* Spacer — reserves layout width when pinned, or thin strip when collapsed */}
+      {/* Spacer - reserves layout width when pinned, or thin strip when collapsed */}
       <div className={cn("flex-shrink-0 transition-all duration-200", pinned ? "w-60" : "w-16")} />
 
       <aside
@@ -92,7 +92,7 @@ export function GuardianNav() {
           overlay && "shadow-2xl shadow-black/50"
         )}
       >
-        {/* Pin/unpin toggle — sits on the right border */}
+        {/* Pin/unpin toggle - sits on the right border */}
         <button
           onClick={() => { setPinned(!pinned); setHovered(false); }}
           className="absolute -right-3 bottom-12 z-10 w-6 h-6 rounded-full bg-[#0D111C] border border-[#243044] flex items-center justify-center text-[#64748B] hover:text-[#F4F7FB] hover:border-[#38BDF8]/30 transition-colors"

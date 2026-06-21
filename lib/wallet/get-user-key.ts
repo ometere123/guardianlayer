@@ -3,7 +3,7 @@ import { decryptPrivateKey } from "./crypto";
 
 /**
  * Fetches and decrypts the acting user's embedded wallet private key.
- * Throws if no wallet exists — user must complete onboarding first.
+ * Throws if no wallet exists - user must complete onboarding first.
  */
 export async function getUserPrivateKey(
   service: SupabaseClient,
@@ -17,7 +17,7 @@ export async function getUserPrivateKey(
     .maybeSingle();
 
   if (error || !data?.encrypted_private_key) {
-    throw new Error("No wallet found for user — complete onboarding first");
+    throw new Error("No wallet found for user - complete onboarding first");
   }
 
   return decryptPrivateKey(data.encrypted_private_key, userId) as `0x${string}`;

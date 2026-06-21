@@ -1,8 +1,8 @@
 /**
- * Guardian Layer — End-to-end smoke test
+ * Guardian Layer - End-to-end smoke test
  *
  * Runs against a live app (default: http://localhost:3000).
- * Tests the full flow using real HTTP calls — no mocks.
+ * Tests the full flow using real HTTP calls - no mocks.
  *
  * Usage:
  *   npm run smoke-test
@@ -10,9 +10,9 @@
  *   SMOKE_API_KEY=gl_live_xxx npm run smoke-test
  *
  * Required env (in .env.local):
- *   SMOKE_BASE_URL     — defaults to http://localhost:3000
- *   SMOKE_API_KEY      — a live API key with scopes: signals:write, guard:check, incidents:read
- *   SMOKE_PROTOCOL_ID  — UUID of an existing protocol to test against
+ *   SMOKE_BASE_URL     - defaults to http://localhost:3000
+ *   SMOKE_API_KEY      - a live API key with scopes: signals:write, guard:check, incidents:read
+ *   SMOKE_PROTOCOL_ID  - UUID of an existing protocol to test against
  */
 
 import { config } from "dotenv";
@@ -32,7 +32,7 @@ async function test(name: string, fn: () => Promise<void>) {
     console.log(`  ✓  ${name}`);
     passed++;
   } catch (err) {
-    console.error(`  ✗  ${name}`);
+    console.error(`  �-  ${name}`);
     console.error(`     ${String(err)}`);
     failed++;
   }
@@ -85,7 +85,7 @@ async function runApiKeyAuth() {
   });
 
   await test("GET /api/v1/guard/check with wrong scope returns 403", async () => {
-    if (!API_KEY) return console.log("     (skipped — no SMOKE_API_KEY)");
+    if (!API_KEY) return console.log("     (skipped - no SMOKE_API_KEY)");
     const { status } = await json<{ error: string }>("/api/v1/guard/check?protocol_id=test", {
       headers: auth("gl_live_bad_key_000000000000000000000000000000000"),
     });
@@ -105,7 +105,7 @@ async function runSignalInjectionGuard() {
   console.log("\n🛡  Injection guard");
 
   if (!API_KEY || !PROTOCOL_ID) {
-    console.log("     (skipped — set SMOKE_API_KEY + SMOKE_PROTOCOL_ID)");
+    console.log("     (skipped - set SMOKE_API_KEY + SMOKE_PROTOCOL_ID)");
     return;
   }
 
@@ -136,7 +136,7 @@ async function runGuardCheck() {
   console.log("\n🔍  /api/v1/guard/check");
 
   if (!API_KEY || !PROTOCOL_ID) {
-    console.log("     (skipped — set SMOKE_API_KEY + SMOKE_PROTOCOL_ID)");
+    console.log("     (skipped - set SMOKE_API_KEY + SMOKE_PROTOCOL_ID)");
     return;
   }
 
@@ -168,7 +168,7 @@ async function runSignalSubmit() {
   console.log("\n📤  POST /api/v1/signals");
 
   if (!API_KEY || !PROTOCOL_ID) {
-    console.log("     (skipped — set SMOKE_API_KEY + SMOKE_PROTOCOL_ID)");
+    console.log("     (skipped - set SMOKE_API_KEY + SMOKE_PROTOCOL_ID)");
     return;
   }
 
@@ -210,12 +210,12 @@ async function runSignalSubmit() {
 }
 
 async function runGenlayerContractEnv() {
-  console.log("\n🔗  GenLayer contract env");
+  console.log("\n�-  GenLayer contract env");
 
   await test("NEXT_PUBLIC_GUARDIAN_LAYER_CONTRACT_ADDRESS is set", async () => {
     // Verify via the Consensus Chamber page (server renders it)
     const res = await fetch(`${BASE}/app/genlayer`);
-    // Will redirect to login if not authenticated — that's fine, just checking the route exists
+    // Will redirect to login if not authenticated - that's fine, just checking the route exists
     assert(res.status < 500, `Expected non-500, got ${res.status}`);
   });
 }
@@ -223,7 +223,7 @@ async function runGenlayerContractEnv() {
 // ── Main ───────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`\n🛡  Guardian Layer — Smoke Test`);
+  console.log(`\n🛡  Guardian Layer - Smoke Test`);
   console.log(`   Base URL : ${BASE}`);
   console.log(`   API Key  : ${API_KEY ? API_KEY.slice(0, 12) + "…" : "(not set)"}`);
   console.log(`   Protocol : ${PROTOCOL_ID || "(not set)"}`);

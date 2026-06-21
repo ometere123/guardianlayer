@@ -1,6 +1,6 @@
 /**
  * GenLayer Studionet client factory + typed contract call helpers.
- * Used server-side only — never imported in browser code.
+ * Used server-side only - never imported in browser code.
  *
  * Write helpers take the acting user's decrypted private key so each
  * transaction is signed by the user's own embedded wallet.
@@ -159,20 +159,22 @@ export async function glAdjudicateIncident(privateKey: `0x${string}`, params: {
     interval: 5000,
   });
 
-  let adjudicated = false;
-  try {
-    await waitForOnchainBoolean(() => glIsIncidentAdjudicated(params.incident_key), "Incident was not adjudicated on GenLayer", 12, 5000);
-    adjudicated = true;
-  } catch {
-    adjudicated = false;
-  }
+  const transaction = await client.getTransaction({ hash: hash as TransactionHash });
+  assertGenLayerExecutionSucceeded(transaction, "Adjudication");
+  await waitForOnchainBoolean(
+    () => glIsIncidentAdjudicated(params.incident_key),
+    `Incident was not adjudicated on GenLayer after finalized tx ${hash as string}`,
+    24,
+    5000
+  );
 
-  return { hash: hash as string, receipt, adjudicated };
+  return { hash: hash as string, receipt, adjudicated: true };
 }
 
 export async function glMarkPauseExecuted(privateKey: `0x${string}`, params: {
   incident_key: string;
   execution_reference: string;
+  execution_status?: string;
 }) {
   const client = getWriteClient(privateKey);
   const address = getContractAddress();
@@ -180,7 +182,7 @@ export async function glMarkPauseExecuted(privateKey: `0x${string}`, params: {
   const hash = await client.writeContract({
     address,
     functionName: "mark_pause_executed",
-    args: [params.incident_key, params.execution_reference],
+    args: [params.incident_key, params.execution_reference, params.execution_status ?? "executed"],
     value: BigInt(0),
     leaderOnly: false,
   });
@@ -287,6 +289,38 @@ async function waitForOnchainBoolean(
     await new Promise(resolve => setTimeout(resolve, intervalMs));
   }
   throw new Error(message);
+}
+
+type GenLayerTransactionLike = {
+  txExecutionResultName?: unknown;
+  consensus_data?: {
+    leader_receipt?: Array<{
+      execution_result?: unknown;
+      genvm_result?: {
+        stderr?: unknown;
+        error_description?: unknown;
+      };
+      result?: unknown;
+    }>;
+  };
+};
+
+function assertGenLayerExecutionSucceeded(transaction: GenLayerTransactionLike, label: string) {
+  const txExecutionResult = String(transaction.txExecutionResultName ?? "").toUpperCase();
+  const leaderErrors = transaction.consensus_data?.leader_receipt?.filter(receipt =>
+    String(receipt.execution_result ?? "").toUpperCase().includes("ERROR")
+  ) ?? [];
+
+  if (txExecutionResult === "FINISHED_WITH_ERROR" || leaderErrors.length > 0) {
+    const firstError = leaderErrors[0];
+    const detail = String(
+      firstError?.genvm_result?.stderr ??
+      firstError?.genvm_result?.error_description ??
+      JSON.stringify(firstError?.result ?? {})
+    ).slice(0, 1200);
+
+    throw new Error(`${label} transaction finalized with GenVM execution error: ${detail}`);
+  }
 }
 
 function normalizeIncidentVerdict(incidentKey: string, raw: Record<string, unknown>): IncidentVerdict {

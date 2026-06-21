@@ -4,7 +4,7 @@ import { Radio, Plus, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/utils";
 
-export const metadata = { title: "Signals — Guardian Layer" };
+export const metadata = { title: "Signals - Guardian Layer" };
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: "text-[#EF4444] bg-[#2a0a0a] border-[#EF4444]/20",
@@ -99,7 +99,7 @@ export default async function SignalsPage() {
                       {s.severity_hint}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-xs text-[#9AA7B8]">{s.protocols?.name ?? "—"}</td>
+                  <td className="px-5 py-3 text-xs text-[#9AA7B8]">{s.protocols?.name ?? "-"}</td>
                   <td className="px-5 py-3">
                     <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${STATUS_COLORS[s.status] ?? STATUS_COLORS.new}`}>
                       {s.status.replace(/_/g, " ")}
@@ -117,7 +117,7 @@ export default async function SignalsPage() {
         <AlertTriangle className="w-4 h-4 text-[#EAB308] flex-shrink-0 mt-0.5" />
         <span>
           Signals can also be submitted via API: <code className="font-mono-gl text-[#9AA7B8]">POST /api/v1/signals</code> with scope <code className="font-mono-gl text-[#9AA7B8]">signals:write</code>.
-          Verdict fields (<code className="font-mono-gl">threat_level</code>, <code className="font-mono-gl">recommended_action</code>, etc.) are always rejected — GenLayer is the sole verdict authority.
+          Verdict fields (<code className="font-mono-gl">threat_level</code>, <code className="font-mono-gl">recommended_action</code>, etc.) are always rejected - GenLayer is the sole verdict authority.
         </span>
       </div>
     </div>

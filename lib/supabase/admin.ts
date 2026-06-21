@@ -1,5 +1,5 @@
 /**
- * Supabase admin client — uses service role key.
+ * Supabase admin client - uses service role key.
  * Supports auth.admin.* methods (inviteUserByEmail, getUserById, etc).
  * Server-side only. Never import in browser code.
  */

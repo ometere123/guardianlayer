@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GuardianLayerLogo } from "@/components/brand/GuardianLayerLogo";
 import { resetPassword } from "@/lib/auth/actions";
 import { AuthAlert } from "@/components/auth/AuthAlert";
+import { ResetPasswordHandler } from "@/components/auth/ResetPasswordHandler";
 
 export const metadata = { title: "Set New Password" };
 
@@ -36,6 +37,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
             </p>
           </div>
 
+          <ResetPasswordHandler />
           {errorMsg && <AuthAlert message={errorMsg} />}
 
           <form action={resetPassword} className="flex flex-col gap-4">

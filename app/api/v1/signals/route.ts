@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "summary is required" }, { status: 422 });
   }
 
-  // Injection guard — caller must NOT supply verdict fields
+  // Injection guard - caller must NOT supply verdict fields
   const forbidden = [
     "verdict",
     "hard_pause",

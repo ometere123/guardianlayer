@@ -5,7 +5,7 @@ import { AlertTriangle, Cpu } from "lucide-react";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/utils";
 
-export const metadata = { title: "Incidents — Guardian Layer" };
+export const metadata = { title: "Incidents - Guardian Layer" };
 
 const STATUS_COLORS: Record<string, string> = {
   open:             "text-[#EF4444] bg-[#2a0a0a] border-[#EF4444]/20",
@@ -91,7 +91,7 @@ export default async function IncidentsPage() {
                     </Link>
                     <code className="text-[10px] font-mono-gl text-[#64748B]">{inc.incident_key}</code>
                   </td>
-                  <td className="px-5 py-3 text-xs text-[#9AA7B8]">{inc.protocols?.name ?? "—"}</td>
+                  <td className="px-5 py-3 text-xs text-[#9AA7B8]">{inc.protocols?.name ?? "-"}</td>
                   <td className="px-5 py-3">
                     <ThreatLevelBadge level={inc.threat_level as "none" | "low" | "elevated" | "high" | "critical"} />
                   </td>

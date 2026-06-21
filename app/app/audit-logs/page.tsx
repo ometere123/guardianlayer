@@ -3,21 +3,21 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { ScrollText, User, Key, Activity } from "lucide-react";
 import { formatTimeAgo } from "@/lib/utils";
 
-export const metadata = { title: "Audit Log — Guardian Layer" };
+export const metadata = { title: "Audit Log - Guardian Layer" };
 
 const ACTION_ICON: Record<string, string> = {
   "protocol.created":             "🛡",
-  "protocol.genlayer_registered": "🔗",
+  "protocol.genlayer_registered": "�-",
   "incident.created":             "🚨",
   "incident.genlayer_submitted":  "📤",
-  "incident.genlayer_adjudicated":"🤖",
+  "incident.genlayer_adjudicated":"�-",
   "incident.genlayer_synced":     "✅",
   "incident.status_changed":      "↕",
   "signal.submitted":             "📡",
   "contract.added":               "📄",
   "pause_policy.updated":         "⚙",
   "webhook.created":              "🔔",
-  "webhook.deleted":              "🗑",
+  "webhook.deleted":              "�-�",
 };
 
 export default async function AuditLogsPage() {

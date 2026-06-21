@@ -3,7 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { generateApiKey, ALL_SCOPES, type ApiKeyScopes } from "@/lib/api-keys/generate";
 import { writeAuditLog } from "@/lib/audit/write";
 
-// GET /api/keys — list keys for authenticated user's org
+// GET /api/keys - list keys for authenticated user's org
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -30,7 +30,7 @@ export async function GET() {
   return NextResponse.json({ keys: keys ?? [] });
 }
 
-// POST /api/keys — create a new API key
+// POST /api/keys - create a new API key
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -99,6 +99,6 @@ export async function POST(request: NextRequest) {
     metadata_json: { name, prefix, scopes, env },
   });
 
-  // Return the plaintext key ONCE — never stored
+  // Return the plaintext key ONCE - never stored
   return NextResponse.json({ key, meta: inserted }, { status: 201 });
 }

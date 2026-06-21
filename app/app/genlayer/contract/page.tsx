@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { ContractStateViewer } from "@/components/genlayer/ContractStateViewer";
 
-export const metadata = { title: "Contract State — Guardian Layer" };
+export const metadata = { title: "Contract State - Guardian Layer" };
 
 export default async function ContractStatePage() {
   const supabase = await createClient();

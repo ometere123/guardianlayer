@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { glGetIncident } from "@/lib/genlayer/client";
+import { glGetIncident, glMarkPauseExecuted, getExplorerTxUrl } from "@/lib/genlayer/client";
+import { getUserPrivateKey } from "@/lib/wallet/get-user-key";
 import { writeAuditLog } from "@/lib/audit/write";
 import { deliverWebhookEvent } from "@/lib/webhooks/deliver";
 import { sendEmail, buildCriticalVerdictEmail } from "@/lib/notifications/email";
 
 // POST /api/genlayer/sync
 // Reads the adjudicated decision from the GenLayer contract and mirrors it to Supabase.
-// GenLayer is the authoritative source of truth — Supabase never overrides the verdict.
+// GenLayer is the authoritative source of truth - Supabase never overrides the verdict.
 // Body: { incident_id: string }
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -42,10 +43,10 @@ export async function POST(request: NextRequest) {
   const incident = rawIncident as Record<string, unknown>;
 
   if (!incident.genlayer_decision_id) {
-    return NextResponse.json({ error: "No GenLayer decision linked — submit and adjudicate first" }, { status: 400 });
+    return NextResponse.json({ error: "No GenLayer decision linked - submit and adjudicate first" }, { status: 400 });
   }
 
-  // Read from contract — GenLayer is source of truth
+  // Read from contract - GenLayer is source of truth
   let verdict;
   try {
     verdict = await glGetIncident(incident.incident_key as string);
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
     })
     .eq("id", incident.genlayer_decision_id as string);
 
-  // Mirror threat level to incident — GenLayer verdict wins
+  // Mirror threat level to incident - GenLayer verdict wins
   await service
     .from("incidents")
     .update({
@@ -140,6 +141,20 @@ export async function POST(request: NextRequest) {
     );
 
     if (canAutoPause) {
+      // Write pause execution on-chain - makes it provable
+      let pauseTxHash: string | null = null;
+      try {
+        const userKey = await getUserPrivateKey(service, user.id);
+        const executionRef = `auto_pause:${incident_id}:${now}`;
+        const pauseResult = await glMarkPauseExecuted(userKey, {
+          incident_key: incident.incident_key as string,
+          execution_reference: executionRef,
+        });
+        pauseTxHash = pauseResult.hash;
+      } catch (err) {
+        console.error("[sync] On-chain mark_pause_executed failed:", err);
+      }
+
       await service
         .from("protocols")
         .update({ current_status: "paused", updated_at: now })
@@ -155,6 +170,8 @@ export async function POST(request: NextRequest) {
           trigger: "genlayer_critical_verdict",
           incident_id,
           threat_level: verdict.verdict_threat_level,
+          on_chain_pause_tx: pauseTxHash,
+          explorer_url: pauseTxHash ? getExplorerTxUrl(pauseTxHash) : null,
         },
       });
 

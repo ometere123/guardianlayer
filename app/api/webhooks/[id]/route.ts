@@ -39,7 +39,7 @@ export async function DELETE(
   return NextResponse.json({ ok: true });
 }
 
-// PATCH /api/webhooks/:id — toggle status
+// PATCH /api/webhooks/:id - toggle status
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

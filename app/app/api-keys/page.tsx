@@ -3,7 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { ApiKeyVault } from "@/components/api-keys/ApiKeyVault";
 import { Key } from "lucide-react";
 
-export const metadata = { title: "API Key Vault — Guardian Layer" };
+export const metadata = { title: "API Key Vault - Guardian Layer" };
 
 export default async function ApiKeysPage() {
   const supabase = await createClient();

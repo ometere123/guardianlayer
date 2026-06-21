@@ -262,7 +262,7 @@ export default function LandingPage() {
               {[
                 { label: "Your backend + API signals",                          color: "#38BDF8", Icon: Radio,        highlight: false },
                 { label: "GUARDIAN LAYER builds evidence packet",               color: "#38BDF8", Icon: Shield,       highlight: false },
-                { label: "GenLayer adjudicates — validators reach consensus",   color: "#8B5CF6", Icon: Cpu,          highlight: true  },
+                { label: "GenLayer adjudicates - validators reach consensus",   color: "#8B5CF6", Icon: Cpu,          highlight: true  },
                 { label: "Decision: HARD PAUSE / SOFT PAUSE / OBSERVE",        color: "#22C55E", Icon: CheckCircle2, highlight: false },
                 { label: "API guard check returns allowed: false",              color: "#EF4444", Icon: Lock,         highlight: false },
               ].map(({ label, color, Icon, highlight }, i) => (

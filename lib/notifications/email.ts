@@ -55,7 +55,7 @@ export function buildCriticalVerdictEmail(params: {
 }): { subject: string; html: string } {
   const { orgName, protocolName, incidentTitle, threatLevel, recommendedAction, reasoning, incidentUrl, autoPaused } = params;
 
-  const subject = `🚨 ${threatLevel.toUpperCase()} verdict on ${protocolName} — ${incidentTitle}`;
+  const subject = `🚨 ${threatLevel.toUpperCase()} verdict on ${protocolName} - ${incidentTitle}`;
 
   const html = `
 <!DOCTYPE html>

@@ -6,7 +6,7 @@ import { getUserPrivateKey } from "@/lib/wallet/get-user-key";
 
 // POST /api/genlayer/adjudicate
 // Requests AI consensus adjudication for an incident.
-// Waits for FINALIZED status (this is a long-running call — up to ~7 min).
+// Waits for FINALIZED status (this is a long-running call - up to ~7 min).
 // Body: { incident_id: string }
 export async function POST(request: NextRequest) {
   const supabase = await createClient();

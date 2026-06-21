@@ -3,7 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { writeAuditLog } from "@/lib/audit/write";
 import crypto from "crypto";
 
-// GET /api/webhooks — list endpoints
+// GET /api/webhooks - list endpoints
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -24,7 +24,7 @@ export async function GET() {
   return NextResponse.json({ endpoints: data ?? [] });
 }
 
-// POST /api/webhooks — create endpoint
+// POST /api/webhooks - create endpoint
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

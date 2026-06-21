@@ -36,7 +36,7 @@ describe("truncateHash", () => {
     expect(result.length).toBeLessThan(hash.length);
   });
   it("always appends ellipsis (function always truncates)", () => {
-    // truncateHash slices unconditionally — it's the caller's job to pass long hashes
+    // truncateHash slices unconditionally - it's the caller's job to pass long hashes
     const result = truncateHash("short", 10);
     expect(result).toContain("…");
   });

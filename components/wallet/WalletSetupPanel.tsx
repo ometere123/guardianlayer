@@ -122,12 +122,12 @@ export function WalletSetupPanel({ userId, orgId, orgName, existingWalletAddress
         </div>
       </div>
 
-      {/* Recovery key — shown once only */}
+      {/* Recovery key - shown once only */}
       {recoveryKey && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-[#EAB308]" />
-            <p className="text-xs font-semibold text-[#EAB308]">Recovery Key — shown once only</p>
+            <p className="text-xs font-semibold text-[#EAB308]">Recovery Key - shown once only</p>
           </div>
           <div className="flex items-center gap-2 bg-[#070A12] border border-[#EAB308]/30 rounded-[8px] p-3">
             <code className="flex-1 font-mono-gl text-[12px] text-[#EAB308] break-all">{recoveryKey}</code>

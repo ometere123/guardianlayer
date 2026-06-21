@@ -98,7 +98,7 @@ export default async function OverviewPage() {
         <MetricCard label="Critical Threats"   value={criticalCount}            accent={criticalCount > 0 ? "red" : undefined} />
         <MetricCard label="Pause Recommended"  value={pauseCount}               accent={pauseCount > 0 ? "red" : undefined} />
         <MetricCard label="GenLayer Decisions" value={decisions?.length ?? 0}   accent="violet" />
-        <MetricCard label="Webhooks"           value="—" />
+        <MetricCard label="Webhooks"           value="-" />
       </div>
 
       {/* Protocol Risk Heatmap */}
@@ -269,8 +269,8 @@ export default async function OverviewPage() {
                       <ThreatLevelBadge level={p.current_threat_level as "none" | "low" | "elevated" | "high" | "critical"} />
                     </td>
                     <td className="py-3 pr-4 text-xs text-[#9AA7B8] uppercase">{p.emergency_mode.replace("_", " ")}</td>
-                    <td className="py-3 pr-4 text-xs text-[#64748B]">{p.last_signal_at ? formatTimeAgo(p.last_signal_at) : "—"}</td>
-                    <td className="py-3 pr-4 text-xs text-[#64748B]">{p.last_genlayer_decision_at ? formatTimeAgo(p.last_genlayer_decision_at) : "—"}</td>
+                    <td className="py-3 pr-4 text-xs text-[#64748B]">{p.last_signal_at ? formatTimeAgo(p.last_signal_at) : "-"}</td>
+                    <td className="py-3 pr-4 text-xs text-[#64748B]">{p.last_genlayer_decision_at ? formatTimeAgo(p.last_genlayer_decision_at) : "-"}</td>
                   </tr>
                 ))}
               </tbody>

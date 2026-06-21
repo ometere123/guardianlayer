@@ -9,7 +9,7 @@ import { GenLayerRegisterButton } from "@/components/genlayer/GenLayerRegisterBu
 import Link from "next/link";
 import { formatTimeAgo, truncateAddress } from "@/lib/utils";
 
-export const metadata = { title: "Protocol — Guardian Layer" };
+export const metadata = { title: "Protocol - Guardian Layer" };
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; saved?: string; error?: string }> };
 
@@ -192,7 +192,7 @@ export default async function ProtocolDetailPage({ params, searchParams }: Props
                         : "bg-[#64748B]/10 text-[#64748B] border border-[#64748B]/20"
                     }`}>{d.consensus_status as string}</span>
                     <ThreatLevelBadge level={(d.threat_level ?? "none") as "none" | "low" | "elevated" | "high" | "critical"} />
-                    <span className="flex-1 text-xs text-[#9AA7B8]">{(d.recommended_action as string | null) ?? "—"}</span>
+                    <span className="flex-1 text-xs text-[#9AA7B8]">{(d.recommended_action as string | null) ?? "-"}</span>
                     {(d.explorer_url as string | null) && (
                       <a href={d.explorer_url as string} target="_blank" rel="noopener noreferrer" className="text-[#38BDF8] hover:text-[#7DD3FC]">
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -239,7 +239,7 @@ export default async function ProtocolDetailPage({ params, searchParams }: Props
                         {c.is_pause_capable ? (
                           <span className="text-xs text-[#22C55E]">✓ {c.pause_function_name as string ?? "pause()"}</span>
                         ) : (
-                          <span className="text-xs text-[#64748B]">—</span>
+                          <span className="text-xs text-[#64748B]">-</span>
                         )}
                       </td>
                       <td className="px-5 py-3">

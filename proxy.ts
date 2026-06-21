@@ -31,7 +31,7 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Protected routes — require auth
+  // Protected routes - require auth
   if (pathname.startsWith("/app") || pathname.startsWith("/onboarding")) {
     if (!user) {
       const url = request.nextUrl.clone();

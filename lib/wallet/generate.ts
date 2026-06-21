@@ -12,7 +12,7 @@ export async function getOrCreateWallet(userId: string, orgId: string): Promise<
 }> {
   const service = await createServiceClient();
 
-  // Check for existing wallet — never generate twice
+  // Check for existing wallet - never generate twice
   const { data: existing } = await service
     .from("wallets")
     .select("wallet_address, recovery_hint")

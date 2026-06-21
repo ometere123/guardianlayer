@@ -5,7 +5,7 @@ import { Shield, Plus, AlertTriangle, Activity } from "lucide-react";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/utils";
 
-export const metadata = { title: "Protocol Registry — Guardian Layer" };
+export const metadata = { title: "Protocol Registry - Guardian Layer" };
 
 export default async function ProtocolsPage() {
   const supabase = await createClient();

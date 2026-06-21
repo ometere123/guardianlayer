@@ -4,7 +4,7 @@ import crypto from "crypto";
 /**
  * POST /api/webhooks/receive
  *
- * Built-in test receiver — verifies HMAC-SHA256 signature and echoes the event.
+ * Built-in test receiver - verifies HMAC-SHA256 signature and echoes the event.
  * Use this URL as the endpoint when testing webhook delivery from this app to itself.
  *
  * In production you'd replace this with your own consumer service.
@@ -13,7 +13,7 @@ import crypto from "crypto";
 export async function POST(request: NextRequest) {
   const signingSecret = process.env.WEBHOOK_SIGNING_SECRET;
   if (!signingSecret) {
-    // No secret configured — accept but warn
+    // No secret configured - accept but warn
     const body = await request.json();
     return NextResponse.json({ ok: true, verified: false, warning: "WEBHOOK_SIGNING_SECRET not set", received: body });
   }

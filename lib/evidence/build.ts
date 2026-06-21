@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import type { Json } from "@/lib/supabase/types";
 
-// Fields callers are NEVER allowed to supply — GenLayer is the only source of truth for these.
+// Fields callers are NEVER allowed to supply - GenLayer is the only source of truth for these.
 const FORBIDDEN_VERDICT_FIELDS = [
   "verdict",
   "hard_pause",
