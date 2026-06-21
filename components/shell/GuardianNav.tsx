@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Radio,
   Cpu,
+  Database,
   Key,
   Webhook,
   ScrollText,
@@ -35,6 +36,7 @@ const navGroups = [
     label: "GenLayer",
     items: [
       { href: "/app/genlayer",   icon: Cpu,      label: "GenLayer Decisions" },
+      { href: "/app/genlayer/contract", icon: Database, label: "Contract State" },
     ],
   },
   {

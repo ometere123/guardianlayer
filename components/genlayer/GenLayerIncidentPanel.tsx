@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Cpu, ExternalLink, Loader2, RefreshCw, Zap } from "lucide-react";
+import { Cpu, ExternalLink, Loader2, RefreshCw, Zap, FastForward } from "lucide-react";
 
-type Step = "submit" | "adjudicate" | "sync";
+type Step = "submit" | "adjudicate" | "sync" | "fast-track";
 
 type Props = {
   incidentId: string;
@@ -20,7 +20,8 @@ export function GenLayerIncidentPanel({
 }: Props) {
   const [loading, setLoading] = useState<Step | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<Record<Step, Record<string, unknown> | null>>({
+  const [fastTracking, setFastTracking] = useState(false);
+  const [results, setResults] = useState<Record<string, Record<string, unknown> | null>>({
     submit: null,
     adjudicate: null,
     sync: null,
@@ -52,6 +53,32 @@ export function GenLayerIncidentPanel({
     }
   }
 
+  async function handleFastTrack() {
+    setFastTracking(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/genlayer/fast-track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ incident_id: incidentId }),
+      });
+      const json = await res.json() as Record<string, unknown>;
+      if (!res.ok) {
+        setError((json.error as string) ?? "Fast-track failed");
+      } else {
+        const steps = json.steps as Record<string, Record<string, unknown>> | undefined;
+        if (steps) {
+          setResults({ submit: steps.submit ?? null, adjudicate: steps.adjudicate ?? null, sync: steps.sync ?? null });
+        }
+        if (json.synced) window.location.reload();
+      }
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setFastTracking(false);
+    }
+  }
+
   const explorerBase = process.env.NEXT_PUBLIC_GENLAYER_EXPLORER_URL ?? "https://explorer-studio.genlayer.com";
 
   const submitResult = results.submit;
@@ -77,6 +104,21 @@ export function GenLayerIncidentPanel({
           Contract: {process.env.NEXT_PUBLIC_GUARDIAN_LAYER_CONTRACT_ADDRESS?.slice(0, 10)}…
         </span>
       </div>
+
+      {/* Fast Track — one-click full flow */}
+      {!isSubmitted && !fastTracking && (
+        <button
+          onClick={handleFastTrack}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[8px] bg-gradient-to-r from-[#8B5CF6] to-[#38BDF8] text-white text-sm font-bold hover:opacity-90 transition-opacity"
+        >
+          <FastForward className="w-4 h-4" /> Fast Track — Submit, Adjudicate & Sync
+        </button>
+      )}
+      {fastTracking && (
+        <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[8px] bg-[#121827] border border-[#8B5CF6]/20 text-[#8B5CF6] text-sm font-medium">
+          <Loader2 className="w-4 h-4 animate-spin" /> Running full consensus flow — this takes 2–7 minutes…
+        </div>
+      )}
 
       {/* Step 1: Submit */}
       <div className="flex items-center gap-3">

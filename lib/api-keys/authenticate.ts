@@ -1,5 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { hashApiKey, type ApiKeyScopes } from "./generate";
+import { checkRateLimit } from "./rate-limit";
 
 export type AuthenticatedKey = {
   api_key_id: string;
@@ -9,7 +10,7 @@ export type AuthenticatedKey = {
 
 type AuthResult =
   | { ok: true; key: AuthenticatedKey }
-  | { ok: false; status: 401 | 403; message: string };
+  | { ok: false; status: 401 | 403 | 429; message: string };
 
 /**
  * Authenticates a Bearer token from the Authorization header.
@@ -40,6 +41,11 @@ export async function authenticateApiKey(
 
   if (!apiKey) {
     return { ok: false, status: 401, message: "Invalid or revoked API key" };
+  }
+
+  const rateCheck = checkRateLimit(apiKey.id);
+  if (!rateCheck.allowed) {
+    return { ok: false, status: 429, message: `Rate limit exceeded. Resets in ${Math.ceil((rateCheck.resetAt - Date.now()) / 1000)}s` };
   }
 
   const scopes: string[] = Array.isArray(apiKey.scopes) ? apiKey.scopes : [];

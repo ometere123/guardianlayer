@@ -133,28 +133,20 @@ export async function POST(request: NextRequest) {
   try {
     const result = await glAdjudicateIncident(privateKey, {
       incident_key: incident.incident_key as string,
-      protocol_summary: protocolSummary,
-      pause_policy_summary: pausePolicySummary,
-      affected_contracts_summary: affectedContractsSummary,
-      known_wallet_context: affectedWallets.length > 0 ? affectedWallets.join(", ") : "None identified",
+      protocol_summary: sanitize(protocolSummary).slice(0, 500),
+      pause_policy_summary: sanitize(pausePolicySummary).slice(0, 500),
+      affected_contracts_summary: sanitize(affectedContractsSummary).slice(0, 1000),
+      known_wallet_context: sanitize(affectedWallets.length > 0 ? affectedWallets.join(", ") : "None"),
       evidence_urls_json: evidenceUrlsJson,
       tx_hashes_json: txHashesJson,
       public_reports_json: "[]",
-      api_signal_summary: apiSignalSummary.join("\n---\n"),
-      manual_triage_summary: [
-        `INCIDENT: ${incident.title as string}`,
-        `Severity hint: ${incident.threat_level as string}`,
-        `Source count: ${incident.source_count as number} signal(s)`,
-        `Summary: ${incident.summary as string}`,
-        ``,
-        `PROTOCOL CONTEXT: ${protocolSummary}`,
-        ``,
-        `PAUSE POLICY: ${pausePolicySummary}`,
-        ``,
-        `MONITORED CONTRACTS: ${affectedContractsSummary}`,
-        ``,
-        `QUESTION: Based on the evidence above, is this an active exploit, a suspicious pattern requiring review, or a false alarm? Classify the threat level and recommend an action.`,
-      ].join("\n"),
+      api_signal_summary: sanitize(apiSignalSummary.join(" | ")).slice(0, 2000),
+      manual_triage_summary: sanitize([
+        `${incident.title as string}.`,
+        `Severity: ${incident.threat_level as string}.`,
+        `${incident.source_count as number} signal(s).`,
+        (incident.summary as string),
+      ].join(" ")).slice(0, 1500),
     });
     adjHash = result.hash;
     adjudicated = result.adjudicated;
@@ -200,4 +192,8 @@ function flattenStringArrays(rows: Record<string, unknown>[], key: string) {
     const value = row[key];
     return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
   });
+}
+
+function sanitize(input: string): string {
+  return input.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "").replace(/\n+/g, " ").trim();
 }

@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { glGetIncident } from "@/lib/genlayer/client";
 import { writeAuditLog } from "@/lib/audit/write";
 import { deliverWebhookEvent } from "@/lib/webhooks/deliver";
+import { sendEmail, buildCriticalVerdictEmail } from "@/lib/notifications/email";
 
 // POST /api/genlayer/sync
 // Reads the adjudicated decision from the GenLayer contract and mirrors it to Supabase.
@@ -185,6 +186,46 @@ export async function POST(request: NextRequest) {
     confidence_label: verdict.verdict_confidence_label,
     source_of_truth: "genlayer",
   });
+
+  // Email notification for high/critical verdicts
+  const threatLevel = verdict.verdict_threat_level ?? "none";
+  if (["critical", "high"].includes(threatLevel)) {
+    const { data: orgRow } = await service
+      .from("organisations")
+      .select("name")
+      .eq("id", membership.organisation_id)
+      .maybeSingle();
+    const { data: protocolRow } = await service
+      .from("protocols")
+      .select("name")
+      .eq("id", incident.protocol_id as string)
+      .maybeSingle();
+    const { data: memberEmails } = await service
+      .from("organisation_members")
+      .select("user_id")
+      .eq("organisation_id", membership.organisation_id)
+      .in("role", ["owner", "admin"]);
+    const userIds = (memberEmails ?? []).map(m => (m as { user_id: string }).user_id);
+    const { data: profiles } = userIds.length
+      ? await service.from("user_profiles").select("email").in("id", userIds)
+      : { data: [] };
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://guardianlayer.vercel.app";
+    const { subject, html } = buildCriticalVerdictEmail({
+      orgName: (orgRow as { name: string } | null)?.name ?? "Your Organisation",
+      protocolName: (protocolRow as { name: string } | null)?.name ?? "Unknown",
+      incidentTitle: incident.title as string,
+      threatLevel,
+      recommendedAction: verdict.verdict_recommended_action ?? "observe",
+      reasoning: verdict.verdict_reasoning ?? "",
+      incidentUrl: `${appUrl}/app/incidents/${incident_id}`,
+      autoPaused: autoPauseTriggered,
+    });
+
+    for (const profile of (profiles ?? []) as Array<{ email: string }>) {
+      if (profile.email) sendEmail({ to: profile.email, subject, html });
+    }
+  }
 
   return NextResponse.json({
     ok: true,

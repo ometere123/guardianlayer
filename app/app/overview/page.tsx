@@ -101,6 +101,43 @@ export default async function OverviewPage() {
         <MetricCard label="Webhooks"           value="—" />
       </div>
 
+      {/* Protocol Risk Heatmap */}
+      {protocols?.length > 0 && (
+        <div className="command-panel p-5">
+          <h2 className="text-sm font-semibold text-[#9AA7B8] uppercase tracking-wider mb-3">Protocol Risk Heatmap</h2>
+          <div className="flex flex-wrap gap-2">
+            {protocols.map((p: AnyRow) => {
+              const colors: Record<string, string> = {
+                critical: "bg-[#EF4444] text-white",
+                high: "bg-[#F97316] text-white",
+                elevated: "bg-[#EAB308] text-[#070A12]",
+                low: "bg-[#22C55E]/20 text-[#22C55E]",
+                none: "bg-[#121827] text-[#64748B]",
+              };
+              const statusDot: Record<string, string> = {
+                paused: "bg-[#EF4444]",
+                pause_recommended: "bg-[#F97316]",
+                under_review: "bg-[#EAB308]",
+                monitoring: "bg-[#22C55E]",
+                normal: "bg-[#22C55E]",
+                disabled: "bg-[#64748B]",
+              };
+              return (
+                <Link
+                  key={p.id}
+                  href={`/app/protocols/${p.id}`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-[8px] text-xs font-medium transition-opacity hover:opacity-80 ${colors[p.current_threat_level] ?? colors.none}`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusDot[p.current_status] ?? statusDot.normal}`} />
+                  {p.name}
+                  <span className="opacity-60 uppercase text-[10px]">{p.current_threat_level}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Risk + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 command-panel p-5 flex flex-col gap-4">
